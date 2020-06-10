@@ -86,13 +86,14 @@ int main(){
                 }
             
                 //do
-                if(){
-
+                if(wachten.read_ms() >= 500){
+                    wachten.reset();
+                    next_state = RIJDEN;
                 }
 
                 // exit
-                if(){
-
+                if(next_state != current_state){
+                    printf("WACHT exit");
                 }
 
             break;
@@ -100,12 +101,14 @@ int main(){
             case RIJDEN:
 
                 //entry
-                if(){
-
+                if(RIJDEN_first){
+                    RIJDEN_first = false;
+                    M_rechts_v = true;
+                    M_Links_v = true;
                 }
             
                 //do
-                if(){
+                if(US_V || US_A || IR_V || IR_A){
 
                 }
 
