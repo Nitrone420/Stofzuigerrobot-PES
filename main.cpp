@@ -50,14 +50,17 @@ int main(){
     debounce.start();
 
 
-    enum state{OFF, WACHT, RIJDEN, ONTWIJKEN_A, ONTWIJKEN_B};
+
+
+    enum state{OFF, WACHT, RIJDEN, ONTWIJKEN_R, ONTWIJKEN_L, DRAAIEN};
 
     bool OFF_first = true;
     bool WACHT_first = true;
 
     bool RIJDEN_first = true;
-    bool ONTWIJKEN_A_first = true;
-    bool ONTWIJKEN_B_first = true;
+    bool ONTWIJKEN_R_first = true;
+    bool ONTWIJKEN_L_first = true;
+    bool DRAAIEN_first = true;
 
     int current_state;
     int next_state = OFF;
@@ -66,6 +69,7 @@ int main(){
     int Object_detectie = 5;                    // afstand in centimeters.
 
     Timer wachten;
+    Timer achteruit;
     Timer draaien;
 
     while(true){
@@ -147,9 +151,14 @@ int main(){
                 }
             
                 //do
-                if(US_V >= Object_detectie || IR_V >= Afgrond_detectie){ // <========= ???????????
+                if(US_V >= Object_detectie){
                     RIJDEN_first = true;
-                    next_state = ONTWIJKEN_A;
+                    next_state = ONTWIJKEN_R;
+                }
+
+                if(IR_V >= Afgrond_detectie){
+                    RIJDEN_first = true;
+                    next_state = ONTWIJKEN_R;
                 }
 
                 // exit
@@ -159,12 +168,12 @@ int main(){
 
             break;
 
-            case ONTWIJKEN_A:
+            case ONTWIJKEN_R:
 
                 //entry
-                if(ONTWIJKEN_A_first){
-                    ONTWIJKEN_A_first = false;
-                    M_Links_v = true;
+                if(ONTWIJKEN_R_first){
+                    ONTWIJKEN_R_first = false;
+                    M_Links_A = true;
                     M_rehts_A = true;
 
                     AN_groen_1 = true;
@@ -172,18 +181,18 @@ int main(){
                     AN_oranje = true;
                     AN_rood = true;
 
-                    draaien.start();
+                    achteruit.start();
 
                 }
             
                 //do
-                if(draaien.read_ms() >= 1000 ){
-                    
-                    ONTWIJKEN_A_first = true;
-                    next_state = RIJDEN;
+                if(achteruit.read_ms() >= 2000 ){
 
-                    draaien.stop();
-                    draaien.reset();
+                    ONTWIJKEN_R_first = true;
+                    next_state = DRAAIEN;
+
+                    achteruit.stop();
+                    achteruit.reset();
                 }
 
                 // exit
@@ -191,11 +200,46 @@ int main(){
 
                 }
             
-            case ONTWIJKEN_B:
+            case ONTWIJKEN_L:
 
                 //entry
-                if(ONTWIJKEN_B_first){
-                    ONTWIJKEN_B_first = false;
+                if(ONTWIJKEN_L_first){
+                    ONTWIJKEN_L_first = false;
+                    M_Links_A = true;
+                    M_rehts_A = true;
+
+                    AN_groen_1 = true;
+                    AN_groen_2 = true;
+                    AN_oranje = true;
+                    AN_rood = true;
+
+                    achteruit.start();
+
+                }
+            
+                //do
+                if(achteruit.read_ms() >= 2000 ){
+                    ONTWIJKEN_L_first = true;
+                    next_state = DRAAIEN;
+
+                    achteruit.stop();
+                    achteruit.reset();
+                }
+
+                // exit
+                if(next_state != current_state){
+
+                }
+
+
+
+            break;
+
+            case DRAAIEN:
+
+                //entry
+                if(DRAAIEN_first){
+                    DRAAIEN_first = false;
                     M_Links_v = true;
                     M_rehts_A = true;
 
@@ -210,7 +254,7 @@ int main(){
             
                 //do
                 if(draaien.read_ms() >= 1000 ){
-                    ONTWIJKEN_B_first = true;
+                    DRAAIEN_first = true;
                     next_state = RIJDEN;
 
                     draaien.stop();
