@@ -30,21 +30,43 @@ DigitalOut AN_groen_2(PA_10);                      // Toelaatbare werk spanning 
 DigitalOut AN_oranje(PA_2);                        // Toelaatbare werk spanning is 50%.
 DigitalOut AN_rood(PA_3);                          // Toelaatbare werk spanning is 25%.
 
+int time_last_click = false;                        // Tijd is 0 miliseconden.
+int debounce_time = 250;                            // In miliseconden.
+
+bool Start_Button_is_pressed = false;
+
+Timer debounce;
+
+void start_button_pressed(){
+    if(debounce.read_ms() - time_last_click >= debounce_time)
+    time_last_click = debounce.read_ms();
+    Start_Button_is_pressed = true;
+}
 
 int main(){
 
-    enum state{OFF, WACHT, RIJDEN, ONTWIJKEN};
+    Start_Button.mode(PullUp);
+    Start_Button.fall(&start_button_pressed);
+    debounce.start();
+
+
+    enum state{OFF, WACHT, RIJDEN, ONTWIJKEN_A, ONTWIJKEN_B};
 
     bool OFF_first = true;
     bool WACHT_first = true;
 
     bool RIJDEN_first = true;
-    bool ONTWIJKEN_first = true;
+    bool ONTWIJKEN_A_first = true;
+    bool ONTWIJKEN_B_first = true;
 
     int current_state;
     int next_state = OFF;
 
+    int Afgrond_detectie = 3;                   // afstand in centimeters.
+    int Object_detectie = 5;                    // afstand in centimeters.
+
     Timer wachten;
+    Timer draaien;
 
     while(true){
 
@@ -57,17 +79,19 @@ int main(){
                 //entry
                 if(OFF_first){
                     OFF_first = false;
-                    AN_groen_1 = 1;
-                    AN_groen_2 = 1;
-                    AN_oranje = 1;
-                    AN_rood = 1;
+                    AN_groen_1 = true;
+                    AN_groen_2 = true;
+                    AN_oranje = true;
+                    AN_rood = true;
                 }
             
                 //do
-                if(Start_Button){
+                if(Start_Button_is_pressed){
+                    
+                    Start_Button_is_pressed = false;
+                    OFF_first = true;
+
                     current_state = WACHT;
-                   // Start_Button == false; ?? moet start_button boolean worden en moet er dan ook debounce functie gemaakt worden
-                   OFF_first = true;
                 }
 
                 // exit
@@ -82,13 +106,22 @@ int main(){
                 //entry
                 if(WACHT_first){
                     WACHT_first = false;
+                    AN_groen_1 = true;
+                    AN_groen_2 = true;
+                    AN_oranje = true;
+                    AN_rood = true;
+
                     wachten.start();
                 }
             
                 //do
-                if(wachten.read_ms() >= 500){
-                    wachten.reset();
+                if(wachten.read_ms() >= 5000){
+                    WACHT_first = true;
                     next_state = RIJDEN;
+
+                    wachten.stop();
+                    wachten.reset();
+                    
                 }
 
                 // exit
@@ -102,39 +135,94 @@ int main(){
 
                 //entry
                 if(RIJDEN_first){
+
                     RIJDEN_first = false;
                     M_rechts_v = true;
                     M_Links_v = true;
+
+                    AN_groen_1 = true;
+                    AN_groen_2 = true;
+                    AN_oranje = true;
+                    AN_rood = true;
                 }
             
                 //do
-                if(US_V || US_A || IR_V || IR_A){
-
+                if(US_V >= Object_detectie || IR_V >= Afgrond_detectie){ // <========= ???????????
+                    RIJDEN_first = true;
+                    next_state = ONTWIJKEN_A;
                 }
 
                 // exit
-                if(){
+                if(next_state != current_state){
 
                 }
 
             break;
 
-            case ONTWIJKEN:
+            case ONTWIJKEN_A:
 
                 //entry
-                if(){
+                if(ONTWIJKEN_A_first){
+                    ONTWIJKEN_A_first = false;
+                    M_Links_v = true;
+                    M_rehts_A = true;
+
+                    AN_groen_1 = true;
+                    AN_groen_2 = true;
+                    AN_oranje = true;
+                    AN_rood = true;
+
+                    draaien.start();
 
                 }
             
                 //do
-                if(){
+                if(draaien.read_ms() >= 1000 ){
+                    
+                    ONTWIJKEN_A_first = true;
+                    next_state = RIJDEN;
 
+                    draaien.stop();
+                    draaien.reset();
                 }
 
                 // exit
-                if(){
+                if(next_state != current_state){
 
                 }
+            
+            case ONTWIJKEN_B:
+
+                //entry
+                if(ONTWIJKEN_B_first){
+                    ONTWIJKEN_B_first = false;
+                    M_Links_v = true;
+                    M_rehts_A = true;
+
+                    AN_groen_1 = true;
+                    AN_groen_2 = true;
+                    AN_oranje = true;
+                    AN_rood = true;
+
+                    draaien.start();
+
+                }
+            
+                //do
+                if(draaien.read_ms() >= 1000 ){
+                    ONTWIJKEN_B_first = true;
+                    next_state = RIJDEN;
+
+                    draaien.stop();
+                    draaien.reset();
+                }
+
+                // exit
+                if(next_state != current_state){
+
+                }
+
+
 
             break;
 
