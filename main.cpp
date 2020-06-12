@@ -30,24 +30,62 @@ DigitalOut AN_groen_2(PA_10);                      // Toelaatbare werk spanning 
 DigitalOut AN_oranje(PA_2);                        // Toelaatbare werk spanning is 50%.
 DigitalOut AN_rood(PA_3);                          // Toelaatbare werk spanning is 25%.
 
-int time_last_click = false;                        // Tijd is 0 miliseconden.
+// Datatype voor debouncen.
+
+int time_last_click_1 = false;                      // Tijd is 0 miliseconden.
+int time_last_click_2 = false;                      // Tijd is 0 miliseconden
+int time_last_click_3 = false;                      // Tijd is 0 miliseconden
+int time_last_click_4 = false;                      // Tijd is 0 miliseconden
+int time_last_click_5 = false;                      // Tijd is 0 miliseconden
+
 int debounce_time = 250;                            // In miliseconden.
 
 bool Start_Button_is_pressed = false;
 
-Timer debounce;
+bool US_V_is_pressed = false;
+bool US_A_is_pressed = false;
 
-void start_button_pressed(){
-    if(debounce.read_ms() - time_last_click >= debounce_time)
-    time_last_click = debounce.read_ms();
-    Start_Button_is_pressed = true;
-}
+bool IR_V_is_pressed = false;
+bool IR_A_is_pressed = false;
+
+Timer debounce_1;
+Timer debounce_2;
+Timer debounce_3;
+Timer debounce_4;
+Timer debounce_5;
+
+
+// functies
+void start_button_pressed();                        // Debouncen van de Strart_Button. zie voor definietie lijn 321.
+
+void US_V_pressed();                                // Debouncen van de sensor US_V (knop). zie voor definietie lijn 327.
+void US_A_pressed();                                // Debouncen van de sensor US_A (knop). zie voor definietie lijn 333.
+
+void IR_V_pressed();                                // Debouncen van de sensor IR_v (knop). zie voor definietie lijn 339.
+void IR_A_pressed();                                // Debouncen van de sensor IR_A (knop). zie voor definietie lijn 345.
 
 int main(){
 
+    
     Start_Button.mode(PullUp);
     Start_Button.fall(&start_button_pressed);
-    debounce.start();
+    debounce_1.start();
+
+    US_V.mode(PullUp);
+    US_V.fall(&US_V_pressed);
+    debounce_2.start();
+
+    US_A.mode(PullUp);
+    US_A.fall(&US_A_pressed);
+    debounce_3.start();
+
+    IR_V.mode(PullUp);
+    IR_V.fall(&IR_V_pressed);
+    debounce_4.start();
+
+    IR_A.mode(PullUp);
+    IR_A.fall(&IR_A_pressed);
+    debounce_5.start();
 
 
 
@@ -151,12 +189,12 @@ int main(){
                 }
             
                 //do
-                if(US_V >= Object_detectie){
+                if(US_V_is_pressed){
                     RIJDEN_first = true;
                     next_state = ONTWIJKEN_R;
                 }
 
-                if(IR_V >= Afgrond_detectie){
+                if(IR_V_is_pressed){
                     RIJDEN_first = true;
                     next_state = ONTWIJKEN_R;
                 }
@@ -167,7 +205,11 @@ int main(){
                 }
 
             break;
-
+//============================NIEK======================================================================================================
+// voor case ONTWIJKEN_R en ONTWIJKEN_L moet er een proggramma komen dat er voor zorgt 
+//dat de robot stopt met achteruit rijden als sensoren IR_A_is_pressed (bool) en US_A_is_pressed (bool) iets detecteren.
+// dit kan je misschien doen door naar case DRAAIEN te schakelen. LET OP case DRAAIEN draait een kant op.
+// OPMERKING: Ik weet niet hoe we de programma van accuniveua moeten integreren in deze programme. We kunnen dit maandag samen doen.
             case ONTWIJKEN_R:
 
                 //entry
@@ -278,4 +320,36 @@ int main(){
         }
     }
     return 0;
+}
+
+// definitie van de functies
+
+void start_button_pressed(){
+    if(debounce_1.read_ms() - time_last_click_1 >= debounce_time)
+    time_last_click_1 = debounce_1.read_ms();
+    Start_Button_is_pressed = true;
+}
+
+void US_V_pressed(){
+    if(debounce_2.read_ms() - time_last_click_2 >= debounce_time)
+    time_last_click_2 = debounce_2.read_ms();
+     US_V_is_pressed = true;
+}
+
+void US_A_pressed(){
+    if(debounce_3.read_ms() - time_last_click_3 >= debounce_time)
+    time_last_click_3 = debounce_3.read_ms();
+    US_A_is_pressed = true;
+}
+
+void IR_V_pressed(){
+    if(debounce_4.read_ms() - time_last_click_4 >= debounce_time)
+    time_last_click_4 = debounce_4.read_ms();
+    IR_V_is_pressed = true;
+}
+
+void IR_A_pressed(){
+    if(debounce_5.read_ms() - time_last_click_5 >= debounce_time)
+    time_last_click_5 = debounce_5.read_ms();
+    IR_A_is_pressed = true;
 }
