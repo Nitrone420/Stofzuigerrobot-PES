@@ -216,7 +216,7 @@ int main(){
                 if(ONTWIJKEN_R_first){
                     ONTWIJKEN_R_first = false;
                     M_Links_A = true;
-                    M_rehts_A = true;
+                    M_rechts_A = true;
 
                     AN_groen_1 = true;
                     AN_groen_2 = true;
@@ -242,7 +242,7 @@ int main(){
 
                 }
             
-            case ONTWIJKEN_L:
+            /*case ONTWIJKEN_L:
 
                 //entry
                 if(ONTWIJKEN_L_first){
@@ -275,7 +275,7 @@ int main(){
 
 
 
-            break;
+            break;*/
 
             case DRAAIEN:
 
