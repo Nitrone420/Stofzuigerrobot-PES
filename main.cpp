@@ -23,7 +23,7 @@ DigitalOut M_Links_v(PA_8);                        // Linker motor vooruit (zie 
 DigitalOut M_rechts_v(PB_10);                      // Rechter motor vooruit (zie technische tekeningen).
 
 DigitalOut M_Links_A(PB_4);                        // Linker motor achteruit (zie technische tekeningen).
-DigitalOut M_rehts_A(PB_5);                        // Rechter motor achteruit (zie technische tekeningen).
+DigitalOut M_rechts_A(PB_5);                       // Rechter motor achteruit (zie technische tekeningen).
 
 DigitalOut AN_groen_1(PB_3);                       // Toelaatbare werk spanning is 100%.
 DigitalOut AN_groen_2(PA_10);                      // Toelaatbare werk spanning is 75%.
@@ -248,7 +248,7 @@ int main(){
                 if(ONTWIJKEN_L_first){
                     ONTWIJKEN_L_first = false;
                     M_Links_A = true;
-                    M_rehts_A = true;
+                    M_rechts_A = true;
 
                     AN_groen_1 = true;
                     AN_groen_2 = true;
@@ -283,7 +283,7 @@ int main(){
                 if(DRAAIEN_first){
                     DRAAIEN_first = false;
                     M_Links_v = true;
-                    M_rehts_A = true;
+                    M_rechts_A = true;
 
                     AN_groen_1 = true;
                     AN_groen_2 = true;
