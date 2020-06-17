@@ -11,18 +11,18 @@
 InterruptIn Start_Button(PA_5);                    // Knop om de robotsofzuiger te starten.
 
 InterruptIn US_V(PA_6);                            // Ultrasoonsensor die links voorin gemonteerd is (zie technische tekeningen).
-InterruptIn US_A(PA_7);                            // Ultrasoonsensor die rechts voorin gemonteerd is (zie technische tekeningen).
+InterruptIn US_A(PB_6);                            // Ultrasoonsensor die rechts voorin gemonteerd is (zie technische tekeningen).
 
-InterruptIn IR_V(PB_6);                            // Infraroodsensor die links voorin gemonteerd is (zie technische tekeningen).                                                                  
+InterruptIn IR_V(PA_7);                            // Infraroodsensor die links voorin gemonteerd is (zie technische tekeningen).                                                                  
 InterruptIn IR_A(PC_7);                            // Infraroodsensor die rechts voorin gemonteerd is (zie technische tekeningen).
 
 AnalogIn AN_Potmeter(A0);                          // Potmeter voor het bepalen van accuniveau.
 
 // Outputs
 DigitalOut M_Links_v(PA_8);                        // Linker motor vooruit (zie technische tekeningen).
-DigitalOut M_rechts_v(PB_10);                      // Rechter motor vooruit (zie technische tekeningen).
+DigitalOut M_rechts_v(PB_4);                      // Rechter motor vooruit (zie technische tekeningen).
 
-DigitalOut M_Links_A(PB_4);                        // Linker motor achteruit (zie technische tekeningen).
+DigitalOut M_Links_A(PB_10);                        // Linker motor achteruit (zie technische tekeningen).
 DigitalOut M_rehts_A(PB_5);                        // Rechter motor achteruit (zie technische tekeningen).
 
 DigitalOut AN_groen_1(PB_3);                       // Toelaatbare werk spanning is 100%.
@@ -99,6 +99,8 @@ int main(){
     bool ONTWIJKEN_R_first = true;
     bool ONTWIJKEN_L_first = true;
     bool DRAAIEN_first = true;
+
+    bool STOP_A = false;
 
     int current_state;
     int next_state = OFF;
@@ -189,15 +191,15 @@ int main(){
                 }
             
                 //do
-                if(US_V_is_pressed){
+                if(US_V_is_pressed || IR_V_is_pressed){
                     RIJDEN_first = true;
                     next_state = ONTWIJKEN_R;
                 }
 
-                if(IR_V_is_pressed){
+                /* if(IR_V_is_pressed){
                     RIJDEN_first = true;
                     next_state = ONTWIJKEN_R;
-                }
+                }*/
 
                 // exit
                 if(next_state != current_state){
@@ -225,12 +227,18 @@ int main(){
 
                     achteruit.start();
 
+                    if(IR_A_is_pressed || US_A_is_pressed){
+                        STOP_A = true;
+
+                    }
+
                 }
             
                 //do
-                if(achteruit.read_ms() >= 2000 ){
+                if(achteruit.read_ms() >= 2000 || STOP_A){
 
                     ONTWIJKEN_R_first = true;
+                    STOP_A = false;
                     next_state = DRAAIEN;
 
                     achteruit.stop();
@@ -242,7 +250,7 @@ int main(){
 
                 }
             
-            case ONTWIJKEN_L:
+           /*  case ONTWIJKEN_L:
 
                 //entry
                 if(ONTWIJKEN_L_first){
@@ -257,7 +265,12 @@ int main(){
 
                     achteruit.start();
 
-                }
+                    if(IR_A_is_pressed || US_A_is_pressed){
+                        STOP_A = true;
+
+                    }
+
+                }*/
             
                 //do
                 if(achteruit.read_ms() >= 2000 ){
