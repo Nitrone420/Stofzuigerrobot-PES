@@ -1,35 +1,33 @@
-//Hello World!
-//PES Groep 3
-//Dit is een test
+/* mbed Microcontroller Library
+ * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+ */
+ // Gemaakt door Burak Koyuncu (groep 3)
 
 #include "mbed.h"
 #include "platform/mbed_thread.h"
-#include "chrono"
 
 // I/O lijst
 
 // Inputs
-InterruptIn Start_Button(PA_5);                    // Knop om de robotsofzuiger te starten.
+InterruptIn Start_Button(D13);                   // D13 Knop om de robotsofzuiger te starten. 
 
-InterruptIn US_V(PA_6);                            // Ultrasoonsensor die links voorin gemonteerd is (zie technische tekeningen).
-InterruptIn US_A(PB_6);                            // Ultrasoonsensor die rechts voorin gemonteerd is (zie technische tekeningen).
+InterruptIn US_V(D10);                           // D12 Ultrasoonsensor die links voorin gemonteerd is (zie technische tekeningen).
+InterruptIn US_A(D8);                            // D10 Ultrasoonsensor die rechts voorin gemonteerd is (zie technische tekeningen).
 
-InterruptIn IR_V(PA_7);                            // Infraroodsensor die links voorin gemonteerd is (zie technische tekeningen).                                                                  
-InterruptIn IR_A(PC_7);                            // Infraroodsensor die rechts voorin gemonteerd is (zie technische tekeningen).
+InterruptIn IR_V(D9);                            // D11 Infraroodsensor die links voorin gemonteerd is (zie technische tekeningen).                                                                  
+InterruptIn IR_A(D7);                            // D9 Infraroodsensor die rechts voorin gemonteerd is (zie technische tekeningen).
 
-AnalogIn AN_Potmeter(A0);                          // Potmeter voor het bepalen van accuniveau.
+AnalogIn AN_Potmeter(A0);                        // Potmeter voor het bepalen van accuniveau.
 
 // Outputs
-DigitalOut M_Links_v(PA_8);                        // Linker motor vooruit (zie technische tekeningen).
-DigitalOut M_rechts_v(PB_4);                      // Rechter motor vooruit (zie technische tekeningen).
+DigitalOut M_Links_v(D6);                        // D7 Linker motor vooruit (zie technische tekeningen).
+DigitalOut M_rechts_v(D4);                       // D5 Rechter motor vooruit (zie technische tekeningen).
 
-DigitalOut M_Links_A(PB_10);                        // Linker motor achteruit (zie technische tekeningen).
-DigitalOut M_rechts_A(PB_5);                        // Rechter motor achteruit (zie technische tekeningen).
+DigitalOut M_Links_A(D5);                       // D6 Linker motor achteruit (zie technische tekeningen).
+DigitalOut M_rehts_A(D3);                       // D4 Rechter motor achteruit (zie technische tekeningen).
 
-DigitalOut AN_groen_1(PB_3);                       // Toelaatbare werk spanning is 100%.
-DigitalOut AN_groen_2(PA_10);                      // Toelaatbare werk spanning is 75%.
-DigitalOut AN_oranje(PA_2);                        // Toelaatbare werk spanning is 50%.
-DigitalOut AN_rood(PA_3);                          // Toelaatbare werk spanning is 25%.
+
 
 // Datatype voor debouncen.
 
@@ -124,10 +122,6 @@ int main(){
                 //entry
                 if(OFF_first){
                     OFF_first = false;
-                    AN_groen_1 = true;
-                    AN_groen_2 = true;
-                    AN_oranje = true;
-                    AN_rood = true;
                 }
             
                 //do
@@ -136,12 +130,12 @@ int main(){
                     Start_Button_is_pressed = false;
                     OFF_first = true;
 
-                    current_state = WACHT;
+                    next_state = WACHT;
                 }
 
                 // exit
                 if(next_state != current_state){
-                    printf("OFF exit");
+                    printf("OFF exit \n");
                 }
 
             break;
@@ -151,11 +145,6 @@ int main(){
                 //entry
                 if(WACHT_first){
                     WACHT_first = false;
-                    AN_groen_1 = true;
-                    AN_groen_2 = true;
-                    AN_oranje = true;
-                    AN_rood = true;
-
                     wachten.start();
                 }
             
@@ -171,7 +160,7 @@ int main(){
 
                 // exit
                 if(next_state != current_state){
-                    printf("WACHT exit");
+                    printf("WACHT exit \n");
                 }
 
             break;
@@ -182,113 +171,68 @@ int main(){
                 if(RIJDEN_first){
 
                     RIJDEN_first = false;
+
                     M_rechts_v = true;
                     M_Links_v = true;
 
-                    AN_groen_1 = true;
-                    AN_groen_2 = true;
-                    AN_oranje = true;
-                    AN_rood = true;
+                    M_rehts_A = false;
+                    M_Links_A = false;
+                    printf("Rijden entry \n");
                 }
             
                 //do
                 if(US_V_is_pressed || IR_V_is_pressed){
-                    RIJDEN_first = true;
-                    next_state = ONTWIJKEN_R;
-                }
 
-                /* if(IR_V_is_pressed){
                     RIJDEN_first = true;
+                    US_V_is_pressed = false;
+                    IR_V_is_pressed = false;
+                    
                     next_state = ONTWIJKEN_R;
-                }*/
+                    printf("Rijden do \n");
+                }
 
                 // exit
                 if(next_state != current_state){
-
+                    printf("Rijden exit \n");
                 }
 
             break;
-//============================NIEK======================================================================================================
-// voor case ONTWIJKEN_R en ONTWIJKEN_L moet er een proggramma komen dat er voor zorgt 
-//dat de robot stopt met achteruit rijden als sensoren IR_A_is_pressed (bool) en US_A_is_pressed (bool) iets detecteren.
-// dit kan je misschien doen door naar case DRAAIEN te schakelen. LET OP case DRAAIEN draait een kant op.
-// OPMERKING: Ik weet niet hoe we de programma van accuniveua moeten integreren in deze programme. We kunnen dit maandag samen doen.
+
             case ONTWIJKEN_R:
 
                 //entry
                 if(ONTWIJKEN_R_first){
-                    ONTWIJKEN_R_first = false;
-                    M_Links_A = true;
-                    M_rechts_A = true;
 
-                    AN_groen_1 = true;
-                    AN_groen_2 = true;
-                    AN_oranje = true;
-                    AN_rood = true;
+                    ONTWIJKEN_R_first = false;
+
+                    M_Links_v = false;
+                    M_rechts_v = false;
+
+                    M_Links_A = true;
+                    M_rehts_A = true;
 
                     achteruit.start();
 
-                    if(IR_A_is_pressed || US_A_is_pressed){
-                        STOP_A = true;
-
-                    }
-
+                    printf("ONTWIJKEN_R entry \n");
                 }
             
                 //do
-                if(achteruit.read_ms() >= 2000 || STOP_A){
+                if( achteruit.read_ms() >= 5000 ||  IR_A_is_pressed || US_A_is_pressed ){ //2 sec
 
                     ONTWIJKEN_R_first = true;
-                    STOP_A = false;
+                    US_A_is_pressed = false;
+                    IR_A_is_pressed = false;
                     next_state = DRAAIEN;
 
                     achteruit.stop();
                     achteruit.reset();
+                    printf("ONTWIJKEN_R do \n");
                 }
 
                 // exit
                 if(next_state != current_state){
-
+                    printf("ONTWIJKEN_R exit \n");
                 }
-            
-           /*  case ONTWIJKEN_L:
-
-                //entry
-                if(ONTWIJKEN_L_first){
-                    ONTWIJKEN_L_first = false;
-                    M_Links_A = true;
-                    M_rechts_A = true;
-
-                    AN_groen_1 = true;
-                    AN_groen_2 = true;
-                    AN_oranje = true;
-                    AN_rood = true;
-
-                    achteruit.start();
-
-                    if(IR_A_is_pressed || US_A_is_pressed){
-                        STOP_A = true;
-
-                    }
-
-                }*/
-            
-                //do
-                if(achteruit.read_ms() >= 2000 ){
-                    ONTWIJKEN_L_first = true;
-                    next_state = DRAAIEN;
-
-                    achteruit.stop();
-                    achteruit.reset();
-                }
-
-                // exit
-                if(next_state != current_state){
-
-                }
-
-
-
             break;
 
             case DRAAIEN:
@@ -297,29 +241,28 @@ int main(){
                 if(DRAAIEN_first){
                     DRAAIEN_first = false;
                     M_Links_v = true;
-                    M_rechts_A = true;
+                    M_Links_A = false;
 
-                    AN_groen_1 = true;
-                    AN_groen_2 = true;
-                    AN_oranje = true;
-                    AN_rood = true;
+                    M_rechts_v = false;
+                    M_rehts_A = true;
 
                     draaien.start();
-
+                    printf("DRAAIEN entry \n");
                 }
             
                 //do
-                if(draaien.read_ms() >= 1000 ){
+                if(draaien.read_ms() >= 5000 ){
                     DRAAIEN_first = true;
                     next_state = RIJDEN;
 
                     draaien.stop();
                     draaien.reset();
+                    printf("DRAAIEN do \n");
                 }
 
                 // exit
                 if(next_state != current_state){
-
+                    printf("DRAAIEN exit \n");
                 }
 
 
@@ -339,31 +282,36 @@ int main(){
 // definitie van de functies
 
 void start_button_pressed(){
-    if(debounce_1.read_ms() - time_last_click_1 >= debounce_time)
-    time_last_click_1 = debounce_1.read_ms();
-    Start_Button_is_pressed = true;
+    if(debounce_1.read_ms() - time_last_click_1 > debounce_time){
+        time_last_click_1 = debounce_1.read_ms();
+        Start_Button_is_pressed = true;
+    }
 }
 
 void US_V_pressed(){
-    if(debounce_2.read_ms() - time_last_click_2 >= debounce_time)
-    time_last_click_2 = debounce_2.read_ms();
-     US_V_is_pressed = true;
+    if(debounce_2.read_ms() - time_last_click_2 > debounce_time){
+        time_last_click_2 = debounce_2.read_ms();
+        US_V_is_pressed = true;
+    }
 }
 
 void US_A_pressed(){
-    if(debounce_3.read_ms() - time_last_click_3 >= debounce_time)
-    time_last_click_3 = debounce_3.read_ms();
-    US_A_is_pressed = true;
+    if(debounce_3.read_ms() - time_last_click_3 > debounce_time){
+        time_last_click_3 = debounce_3.read_ms();
+        US_A_is_pressed = true;
+    }
 }
 
 void IR_V_pressed(){
-    if(debounce_4.read_ms() - time_last_click_4 >= debounce_time)
-    time_last_click_4 = debounce_4.read_ms();
-    IR_V_is_pressed = true;
+    if(debounce_4.read_ms() - time_last_click_4 > debounce_time){
+        time_last_click_4 = debounce_4.read_ms();
+        IR_V_is_pressed = true;
+    }
 }
 
 void IR_A_pressed(){
-    if(debounce_5.read_ms() - time_last_click_5 >= debounce_time)
-    time_last_click_5 = debounce_5.read_ms();
-    IR_A_is_pressed = true;
+    if(debounce_5.read_ms() - time_last_click_5 > debounce_time){
+        time_last_click_5 = debounce_5.read_ms();
+        IR_A_is_pressed = true;
+    }
 }
