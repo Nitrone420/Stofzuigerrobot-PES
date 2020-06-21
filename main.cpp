@@ -311,7 +311,7 @@ void IR_A_pressed(){
     }
 }
 
-// De programma die hieronder staat is voor het accuniveau. we wisten niet hoe wij deze programma in de hoofdprogramma moesten integreren.
+// De programma die hieronder staat is voor het accuniveau. We hadden de kennis niet om deze programma in de hoofdprogramma te integreren.
 /*
 
 #include "mbed.h"
