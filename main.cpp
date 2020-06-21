@@ -10,32 +10,32 @@
 // I/O lijst
 
 // Inputs
-InterruptIn Start_Button(D13);                   // D13 Knop om de robotsofzuiger te starten. 
+InterruptIn Start_Button(D13);                   // Knop om de robotsofzuiger te starten. 
 
-InterruptIn US_V(D10);                           // D12 Ultrasoonsensor die links voorin gemonteerd is (zie technische tekeningen).
-InterruptIn US_A(D8);                            // D10 Ultrasoonsensor die rechts voorin gemonteerd is (zie technische tekeningen).
+InterruptIn US_V(D10);                           // Ultrasoonsensor die voorin gemonteerd is (zie technische tekeningen).
+InterruptIn US_A(D8);                            // Ultrasoonsensor die achterin gemonteerd is (zie technische tekeningen).
 
-InterruptIn IR_V(D9);                            // D11 Infraroodsensor die links voorin gemonteerd is (zie technische tekeningen).                                                                  
-InterruptIn IR_A(D7);                            // D9 Infraroodsensor die rechts voorin gemonteerd is (zie technische tekeningen).
+InterruptIn IR_V(D9);                            // Infraroodsensor die voorin gemonteerd is (zie technische tekeningen).                                                                  
+InterruptIn IR_A(D7);                            // Infraroodsensor die achterin gemonteerd is (zie technische tekeningen).
 
 AnalogIn AN_Potmeter(A0);                        // Potmeter voor het bepalen van accuniveau.
 
 // Outputs
-DigitalOut M_Links_v(D6);                        // D7 Linker motor vooruit (zie technische tekeningen).
-DigitalOut M_rechts_v(D4);                       // D5 Rechter motor vooruit (zie technische tekeningen).
+DigitalOut M_Links_v(D6);                        // Linker motor vooruit (zie technische tekeningen).
+DigitalOut M_rechts_v(D4);                       // Rechter motor vooruit (zie technische tekeningen).
 
-DigitalOut M_Links_A(D5);                       // D6 Linker motor achteruit (zie technische tekeningen).
-DigitalOut M_rehts_A(D3);                       // D4 Rechter motor achteruit (zie technische tekeningen).
+DigitalOut M_Links_A(D5);                        // Linker motor achteruit (zie technische tekeningen).
+DigitalOut M_rehts_A(D3);                        // Rechter motor achteruit (zie technische tekeningen).
 
 
 
 // Datatype voor debouncen.
 
 int time_last_click_1 = false;                      // Tijd is 0 miliseconden.
-int time_last_click_2 = false;                      // Tijd is 0 miliseconden
-int time_last_click_3 = false;                      // Tijd is 0 miliseconden
-int time_last_click_4 = false;                      // Tijd is 0 miliseconden
-int time_last_click_5 = false;                      // Tijd is 0 miliseconden
+int time_last_click_2 = false;                      // Tijd is 0 miliseconden.
+int time_last_click_3 = false;                      // Tijd is 0 miliseconden.
+int time_last_click_4 = false;                      // Tijd is 0 miliseconden.
+int time_last_click_5 = false;                      // Tijd is 0 miliseconden.
 
 int debounce_time = 250;                            // In miliseconden.
 
@@ -47,21 +47,21 @@ bool US_A_is_pressed = false;
 bool IR_V_is_pressed = false;
 bool IR_A_is_pressed = false;
 
-Timer debounce_1;
-Timer debounce_2;
-Timer debounce_3;
-Timer debounce_4;
-Timer debounce_5;
+Timer debounce_1;                                   // Timer voor debounce.
+Timer debounce_2;                                   // Timer voor debounce.
+Timer debounce_3;                                   // Timer voor debounce.
+Timer debounce_4;                                   // Timer voor debounce.
+Timer debounce_5;                                   // Timer voor debounce.
 
 
 // functies
-void start_button_pressed();                        // Debouncen van de Strart_Button. zie voor definietie lijn 321.
+void start_button_pressed();                        // Debouncen van de Strart_Button. Defenitie is onderaan te vinden.
 
-void US_V_pressed();                                // Debouncen van de sensor US_V (knop). zie voor definietie lijn 327.
-void US_A_pressed();                                // Debouncen van de sensor US_A (knop). zie voor definietie lijn 333.
+void US_V_pressed();                                // Debouncen van de sensor US_V (knop). Defenitie is onderaan te vinden.
+void US_A_pressed();                                // Debouncen van de sensor US_A (knop). Defenitie is onderaan te vinden.
 
-void IR_V_pressed();                                // Debouncen van de sensor IR_v (knop). zie voor definietie lijn 339.
-void IR_A_pressed();                                // Debouncen van de sensor IR_A (knop). zie voor definietie lijn 345.
+void IR_V_pressed();                                // Debouncen van de sensor IR_v (knop). Defenitie is onderaan te vinden.
+void IR_A_pressed();                                // Debouncen van de sensor IR_A (knop). Defenitie is onderaan te vinden.
 
 int main(){
 
@@ -89,27 +89,23 @@ int main(){
 
 
 
-    enum state{OFF, WACHT, RIJDEN, ONTWIJKEN_R, ONTWIJKEN_L, DRAAIEN};
+    enum state{OFF, WACHT, RIJDEN, ONTWIJKEN, DRAAIEN};     // states die gebruikt worden in deze programma.
 
     bool OFF_first = true;
     bool WACHT_first = true;
 
     bool RIJDEN_first = true;
-    bool ONTWIJKEN_R_first = true;
-    bool ONTWIJKEN_L_first = true;
+    bool ONTWIJKEN_first = true;
     bool DRAAIEN_first = true;
 
-    bool STOP_A = false;
+    
 
     int current_state;
     int next_state = OFF;
 
-    int Afgrond_detectie = 3;                   // afstand in centimeters.
-    int Object_detectie = 5;                    // afstand in centimeters.
-
-    Timer wachten;
-    Timer achteruit;
-    Timer draaien;
+    Timer wachten;                              
+    Timer achteruit;                             
+    Timer draaien;                              
 
     while(true){
 
@@ -117,7 +113,7 @@ int main(){
 
         switch(current_state){
 
-            case OFF:
+            case OFF:                           // Eerste state wat uitgevoerd wordt. 
 
                 //entry
                 if(OFF_first){
@@ -140,7 +136,7 @@ int main(){
 
             break;
 
-            case WACHT:
+            case WACHT:                               // Na het indrukken van de start knop zal de robot na 5 seconden beginnen met rijden.
 
                 //entry
                 if(WACHT_first){
@@ -165,7 +161,7 @@ int main(){
 
             break;
 
-            case RIJDEN:
+            case RIJDEN:                            // state voor vooruit rijden
 
                 //entry
                 if(RIJDEN_first){
@@ -181,13 +177,13 @@ int main(){
                 }
             
                 //do
-                if(US_V_is_pressed || IR_V_is_pressed){
+                if(US_V_is_pressed || IR_V_is_pressed){         // Code voor ontijken van afgrond en/of object.
 
                     RIJDEN_first = true;
                     US_V_is_pressed = false;
                     IR_V_is_pressed = false;
                     
-                    next_state = ONTWIJKEN_R;
+                    next_state = ONTWIJKEN;
                     printf("Rijden do \n");
                 }
 
@@ -198,12 +194,11 @@ int main(){
 
             break;
 
-            case ONTWIJKEN_R:
+            case ONTWIJKEN:                                 // state waar de robot stukje achteruit gaat.
 
                 //entry
-                if(ONTWIJKEN_R_first){
-
-                    ONTWIJKEN_R_first = false;
+                if(ONTWIJKEN_first){
+                    ONTWIJKEN_first = false;
 
                     M_Links_v = false;
                     M_rechts_v = false;
@@ -217,9 +212,9 @@ int main(){
                 }
             
                 //do
-                if( achteruit.read_ms() >= 5000 ||  IR_A_is_pressed || US_A_is_pressed ){ //2 sec
+                if( achteruit.read_ms() >= 5000 ||  IR_A_is_pressed || US_A_is_pressed ){ 
 
-                    ONTWIJKEN_R_first = true;
+                    ONTWIJKEN_first = true;
                     US_A_is_pressed = false;
                     IR_A_is_pressed = false;
                     next_state = DRAAIEN;
@@ -235,7 +230,7 @@ int main(){
                 }
             break;
 
-            case DRAAIEN:
+            case DRAAIEN:                                           // state waar de robot stukje draait
 
                 //entry
                 if(DRAAIEN_first){
@@ -315,3 +310,48 @@ void IR_A_pressed(){
         IR_A_is_pressed = true;
     }
 }
+
+// De programma die hieronder staat is voor het accuniveau. we wisten niet hoe wij deze programma in de hoofdprogramma moesten integreren.
+/*
+
+#include "mbed.h"
+
+AnalogIn   analog_in (A2);
+DigitalOut redled(D9);
+DigitalOut yellowled(D8);
+DigitalOut greenled1(D7);
+DigitalOut greenled2(D6);
+
+int main() {
+
+    while(1) {
+        if (analog_in >0.3f) {
+            redled = 1;
+        }   else {
+            redled = 0;
+        }
+        if (analog_in >0.5f) {
+            yellowled = 1;
+        }   else {
+            yellowled = 0;
+        }
+        if (analog_in >0.7f) {
+            greenled1 = 1;
+        }   else {
+            greenled1 = 0;
+        }
+         if (analog_in >0.9f) {
+            greenled2 = 1;
+        }   else {
+            greenled2 = 0;
+        
+        }
+            wait(0.2f);
+           
+       }
+    }
+
+
+
+
+ */
